@@ -1,147 +1,101 @@
 #include <iostream>
-#include <string>
+
+using std::cout;
+using std::endl;
 
 template<typename tn>
-struct Node{
-    Node* next = nullptr;
-    Node* prev = nullptr;
-    tn value;
-};
-
-template<typename tn> //tn тип данных переменной value
-struct List{
+class list {
 private:
-    Node<tn>* first = nullptr;
-    Node<tn>* last = nullptr;
-    Node<tn>* FindNode(int n){
-        int counter = 0;
-        Node<tn> *TempNode = first;
-        while (counter != n) {
-            TempNode = TempNode->next;
-            ++counter;
-        }
-        return TempNode;
-    }
+    tn* array;
+    int MaxSize;
 public:
-    void push_back(tn value){
-        if (first == nullptr){
-            auto *node = new Node<tn>;
-            node->prev = nullptr;
-            node->next = nullptr;
-            node->value = value;
-            first = node;
-            last = node;
+    int size;
+    void constructor (int n){
+        array = new tn[n];
+        size = 0;
+        MaxSize = n;
+    }
+    void push(tn value){
+        if (size < MaxSize){
+            array[size] = value;
+            size++;
         } else {
-            auto *node = new Node<tn>;
-            node->prev = last;
-            node->next = nullptr;
-            node->value = value;
-            last->next = node;
-            last = node;
+            cout << "Out of range" << endl;
         }
     }
-    void push_forward(tn value){
-        if (first == nullptr){
-            auto *node = new Node<tn>;
-            node->prev = nullptr;
-            node->next = nullptr;
-            node->value = value;
-            first = node;
-            last = node;
+    void print (){
+        for (int i = 0; i < size; ++i) {
+            cout << array[i] << ' ';
+        }
+        cout << endl;
+    }
+    void destructor (){
+        delete [] array;
+        size = 0;
+    }
+    void PushByIndex (int n, tn value){
+        if (n < size && size < MaxSize) {
+            for (int i = size; i > n; i--) {
+                array[i] = array[i - 1];
+            }
+            array[n] = value;
+            size++;
         } else {
-            auto *node = new Node<tn>;
-            node->prev = nullptr;
-            node->next = first;
-            node->value = value;
-            first->prev = node;
-            first = node;
+            cout << "Out of range" << endl;
         }
     }
-    unsigned int size(){
-        unsigned int counter;
-        if (first == nullptr && last == nullptr){
-            counter = 0;
-        } else counter = 1;
-        Node<tn>* iter = first;
-        while (iter != last){
-            ++counter;
-            iter = iter->next;
+    tn PopB(){ //извлечение из начала
+        tn result = array[0]; //для того, чтобы сделать проверку на то, существует ли элемент в списке, нужно знать исключения
+        for (int i = 0; i < size - 1; i++) {
+            array[i] = array[i + 1];
         }
-        return counter;
+        size--;
+        return result;
     }
-    void clear(){
-        while (last != first){
-            last = last->prev;
-            delete last->next;
-            last->next = nullptr;
+    tn PopE(){ //извлечение из конца
+        size--;
+        return array[size];
+    }
+    tn PopByIndex(int n){
+        tn result = array[n];
+        for (int i = n; i < size-1; i++){
+            array[i] = array[i+1];
         }
-        delete last;
-        first = nullptr;
-        last = nullptr;
+        size--;
+        return result;
     }
-    void print(){
-        Node<tn>* iter = first;
-        while (iter != last){
-            std::cout << iter->value << ' ';
-            iter = iter->next;
+    tn get(int n){
+        return array[n];
+    }
+    int find (tn value){ //если элемент не найден, то возращается -1
+        int iter = -1;
+        for (int i = 0; i < size; ++i){
+            if (array[i] == value){
+                iter = i;
+            }
         }
-        std::cout << iter->value << std::endl;
-    }
-    void remove(int n){
-        if(n == 0){
-            first = first->next;
-            delete first->prev;
-        } else if(n == size()-1){
-            last = last->prev;
-            delete last->next;
-        } else {
-            Node<tn>* TempNode = FindNode(n);
-            TempNode->prev->next = TempNode->next;
-            TempNode->next->prev = TempNode->prev;
-            delete TempNode;
-        }
-    }
-    tn operator [] (int n) {
-            return FindNode(n)->value;
+        return iter;
     }
 };
 int main() {
-    //Не пишите только так, чтобы элементы былb вне списка, иначе программа сломается :)
-
-    //Блок тестов для проверки раоты программы со строками
-    List <std::string> Mylist;
-    Mylist.push_back("World");
-    Mylist.push_forward("Hello");
-    Mylist.push_back("I'm");
-    std::string str = Mylist[0];
-    std::cout << Mylist.size() << std::endl;
-    Mylist.print();
-    Mylist.remove(0);
-    Mylist.print();
-    Mylist.remove(1);
-    Mylist.print();
-    Mylist.clear();
-    std::cout << Mylist.size() << std::endl;
-
-    //Блок тестов проверки раоты программы с целыми значениями
-    /*List <int> Mylist;
-    Mylist.push_back(2);
-    Mylist.push_forward(1);
-    Mylist.push_back(3);
-    std::cout << Mylist.size() << std::endl;
-    int str= Mylist[0];*/
-    /*std::cout << str << std::endl;
-    Mylist.clear();
-    std::cout << Mylist.size() << std::endl;*/
-
-    //Блок для отслеживания работы программы с памятью через диспетчер задач
-    /*List<int> Mylist;
-    for (int i=0; i<30000000; ++i){
-        Mylist.push_back(i);
-    }
-    for (int i=0; i<30000000-2; ++i){
-        Mylist.remove(1);
-    }
-    Mylist.clear();*/
+    //для работы пользовательского типа данных, для него нужно перегрузить оператор ==
+    list<int> MyList;
+    MyList.constructor(4);
+    MyList.push(4);
+    MyList.push(5);
+    MyList.PushByIndex(1,8);
+    MyList.push(7);
+    cout << MyList.find(5) << endl;
+    cout << MyList.find(9) << endl;
+    MyList.print();
+    cout << MyList.get(2) << endl;
+    cout << MyList.PopB() << endl;
+    MyList.print();
+    cout << MyList.PopE() << endl;
+    MyList.print();
+    cout << MyList.PopByIndex(1) << endl;
+    MyList.print();
+    MyList.destructor();
+    MyList.print();
     return 0;
 }

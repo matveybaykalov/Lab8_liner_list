@@ -3,17 +3,29 @@
 using std::cout;
 using std::endl;
 
-template<typename tn>
+struct book{
+    std::string name;
+    int release;
+};
+
+bool operator== (book& lhs, book& rhs){
+    return lhs.name == rhs.name;
+}
+
+std::ostream& operator<< (std::ostream& stream, const book& b){
+    stream << b.name << ' ' << b.release;
+    return stream;
+}
+
+template<typename tn, int MaxSize>
 class list {
 private:
-    tn* array;
-    int MaxSize;
+    tn array[MaxSize];
 public:
     int size;
-    void constructor (int n){
-        array = new tn[n];
+    void constructor (){
+
         size = 0;
-        MaxSize = n;
     }
     void push(tn value){
         if (size < MaxSize){
@@ -30,7 +42,6 @@ public:
         cout << endl;
     }
     void destructor (){
-        delete [] array;
         size = 0;
     }
     void PushByIndex (int n, tn value){
@@ -78,9 +89,8 @@ public:
     }
 };
 int main() {
-    //для работы пользовательского типа данных, для него нужно перегрузить оператор ==
-    list<int> MyList;
-    MyList.constructor(4);
+    /*list<int, 4> MyList;
+    MyList.constructor();
     MyList.push(4);
     MyList.push(5);
     MyList.PushByIndex(1,8);
@@ -96,6 +106,25 @@ int main() {
     cout << MyList.PopByIndex(1) << endl;
     MyList.print();
     MyList.destructor();
-    MyList.print();
+    MyList.print();*/
+
+    list<book, 4> library;
+    library.constructor();
+    library.push({"The Master and Margarita", 1948});
+    library.push({"Asya",1858});
+    library.PushByIndex(1,{"Fathers And Sons", 1862});
+    library.push({"Count Of Monte Cristo", 1845});
+    cout << library.find({"Fathers And Sons", 1862}) << endl;
+    cout << library.find({"Harry Potter", 1997}) << endl;
+    library.print();
+    cout << library.get(2) << endl;
+    cout << library.PopB() << endl;
+    library.print();
+    cout << library.PopE() << endl;
+    library.print();
+    cout << library.PopByIndex(1) << endl;
+    library.print();
+    library.destructor();
+    library.print();
     return 0;
 }
